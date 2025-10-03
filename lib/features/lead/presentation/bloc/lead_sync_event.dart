@@ -17,3 +17,22 @@ class LoadUnsentLeadsEvent extends LeadSyncEvent {
 class SyncLeadsEvent extends LeadSyncEvent {
   const SyncLeadsEvent();
 }
+
+/// Enable automatic synchronization with given interval
+class EnableAutoSyncEvent extends LeadSyncEvent {
+  final Duration interval;
+  const EnableAutoSyncEvent(this.interval);
+
+  @override
+  List<Object> get props => [interval];
+}
+
+/// Disable automatic synchronization
+class DisableAutoSyncEvent extends LeadSyncEvent {
+  const DisableAutoSyncEvent();
+}
+
+/// Internal periodic tick for auto sync (not exposed to UI directly)
+class AutoSyncTickEvent extends LeadSyncEvent {
+  const AutoSyncTickEvent();
+}

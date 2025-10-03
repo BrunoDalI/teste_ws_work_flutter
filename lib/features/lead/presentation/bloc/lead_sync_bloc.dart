@@ -1,26 +1,36 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_unsent_leads.dart';
 import '../../domain/usecases/send_leads.dart';
 import '../../domain/repositories/lead_repository.dart';
 import 'lead_sync_event.dart';
 import 'lead_sync_state.dart';
+import '../../../../core/sync/auto_sync_service.dart';
 
 /// BLoC for managing lead synchronization
 class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
   final GetUnsentLeads _getUnsentLeads;
   final SendLeads _sendLeads;
   final LeadRepository _leadRepository;
+  Timer? _autoSyncTimer; // used only if service not provided
+  Duration? _currentInterval;
+  final AutoSyncService? _autoSyncService; // optional external service
 
   LeadSyncBloc({
     required GetUnsentLeads getUnsentLeads,
     required SendLeads sendLeads,
     required LeadRepository leadRepository,
+    AutoSyncService? autoSyncService,
   })  : _getUnsentLeads = getUnsentLeads,
         _sendLeads = sendLeads,
         _leadRepository = leadRepository,
+        _autoSyncService = autoSyncService,
         super(const LeadSyncInitial()) {
     on<LoadUnsentLeadsEvent>(_onLoadUnsentLeads);
     on<SyncLeadsEvent>(_onSyncLeads);
+    on<EnableAutoSyncEvent>(_onEnableAutoSync);
+    on<DisableAutoSyncEvent>(_onDisableAutoSync);
+    on<AutoSyncTickEvent>(_onAutoSyncTick);
   }
 
   Future<void> _onLoadUnsentLeads(
@@ -33,7 +43,40 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
 
     result.fold(
       (failure) => emit(LeadSyncError(message: failure.message)),
-      (leads) => emit(LeadSyncLoaded(unsentLeads: leads)),
+      (leads) {
+        bool enabled = false;
+        Duration? interval;
+        DateTime? nextAt;
+        if (state is LeadSyncLoaded) {
+          final s = state as LeadSyncLoaded;
+            enabled = s.autoSyncEnabled;
+            interval = s.autoSyncInterval;
+            nextAt = s.nextAutoSyncAt;
+        } else if (state is LeadSyncSending) {
+          final s = state as LeadSyncSending;
+          enabled = s.autoSyncEnabled;
+          interval = s.autoSyncInterval;
+          nextAt = s.nextAutoSyncAt;
+        } else if (state is LeadSyncSuccess) {
+          final s = state as LeadSyncSuccess;
+          enabled = s.autoSyncEnabled;
+          interval = s.autoSyncInterval;
+          nextAt = s.nextAutoSyncAt;
+        }
+        // If we have service, override with its state for consistency
+        if (_autoSyncService != null) {
+          enabled = _autoSyncService.isEnabled;
+          interval = _autoSyncService.interval;
+          nextAt = _autoSyncService.nextRunAt;
+          _currentInterval = interval;
+        }
+        emit(LeadSyncLoaded(
+          unsentLeads: leads,
+          autoSyncEnabled: enabled,
+          autoSyncInterval: interval,
+          nextAutoSyncAt: nextAt,
+        ));
+      },
     );
   }
 
@@ -55,7 +98,12 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
       return;
     }
 
-    emit(LeadSyncSending(unsentLeads: unsentLeads));
+    emit(LeadSyncSending(
+      unsentLeads: unsentLeads,
+      autoSyncEnabled: currentState.autoSyncEnabled,
+      autoSyncInterval: currentState.autoSyncInterval,
+      nextAutoSyncAt: currentState.nextAutoSyncAt,
+    ));
 
     try {
       // Send leads to remote API
@@ -73,7 +121,15 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
             }
           }
           
-          emit(LeadSyncSuccess(syncedCount: unsentLeads.length));
+          final nextAt = currentState.autoSyncEnabled && _currentInterval != null
+              ? DateTime.now().add(_currentInterval!)
+              : null;
+          emit(LeadSyncSuccess(
+            syncedCount: unsentLeads.length,
+            autoSyncEnabled: currentState.autoSyncEnabled,
+            autoSyncInterval: currentState.autoSyncInterval,
+            nextAutoSyncAt: nextAt,
+          ));
           
           // Reload unsent leads to update the list
           add(const LoadUnsentLeadsEvent());
@@ -82,5 +138,73 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
     } catch (e) {
       emit(LeadSyncError(message: 'Erro inesperado: $e'));
     }
+  }
+
+  void _onEnableAutoSync(
+    EnableAutoSyncEvent event,
+    Emitter<LeadSyncState> emit,
+  ) {
+    _currentInterval = event.interval;
+
+    if (_autoSyncService != null) {
+      _autoSyncService.enable(event.interval);
+    } else {
+      _autoSyncTimer?.cancel();
+      _autoSyncTimer = Timer.periodic(event.interval, (_) => add(const AutoSyncTickEvent()));
+    }
+
+    if (state is LeadSyncLoaded) {
+      final s = state as LeadSyncLoaded;
+      final nextAt = DateTime.now().add(event.interval);
+      emit(s.copyWith(
+        autoSyncEnabled: true,
+        autoSyncInterval: event.interval,
+        nextAutoSyncAt: nextAt,
+      ));
+    }
+
+    _autoSyncTimer = Timer.periodic(event.interval, (_) {
+      add(const AutoSyncTickEvent());
+    });
+  }
+
+  void _onDisableAutoSync(
+    DisableAutoSyncEvent event,
+    Emitter<LeadSyncState> emit,
+  ) {
+    _currentInterval = null;
+    if (_autoSyncService != null) {
+      _autoSyncService.disable();
+    } else {
+      _autoSyncTimer?.cancel();
+    }
+    if (state is LeadSyncLoaded) {
+      emit((state as LeadSyncLoaded).copyWith(
+        autoSyncEnabled: false,
+        autoSyncInterval: null,
+        nextAutoSyncAt: null,
+      ));
+    }
+  }
+
+  void _onAutoSyncTick(
+    AutoSyncTickEvent event,
+    Emitter<LeadSyncState> emit,
+  ) {
+    if (state is LeadSyncLoaded) {
+      final s = state as LeadSyncLoaded;
+      if (s.unsentLeads.isNotEmpty) {
+        add(const SyncLeadsEvent());
+      } else {
+        // Only update next schedule
+        emit(s.copyWith(nextAutoSyncAt: DateTime.now().add(_currentInterval!)));
+      }
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _autoSyncTimer?.cancel();
+    return super.close();
   }
 }

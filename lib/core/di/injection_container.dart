@@ -22,6 +22,7 @@ import '../../features/lead/data/datasources/lead_remote_data_source_impl.dart';
 import '../../features/cars/presentation/bloc/car_bloc.dart';
 import '../../features/lead/presentation/bloc/lead_bloc.dart';
 import '../../features/lead/presentation/bloc/lead_sync_bloc.dart';
+import '../sync/auto_sync_service.dart';
 
 final sl = GetIt.instance;
 
@@ -35,6 +36,7 @@ Future<void> init() async {
         getUnsentLeads: sl(),
         sendLeads: sl(),
         leadRepository: sl(),
+    autoSyncService: sl(),
       ));
 
   // Use cases
@@ -58,6 +60,13 @@ Future<void> init() async {
       remoteDataSource: sl(),
     ),
   );
+
+  // Auto Sync Service (foreground)
+  sl.registerLazySingleton(() => AutoSyncService(
+        getUnsentLeads: sl(),
+        sendLeads: sl(),
+        leadRepository: sl(),
+      ));
 
   // Data sources
   sl.registerLazySingleton<CarRemoteDataSource>(

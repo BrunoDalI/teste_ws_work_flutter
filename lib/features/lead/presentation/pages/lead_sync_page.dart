@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/widgets/custom_appbar_widget.dart';
+import '../../../../core/widgets/gradient_background_widget.dart';
 import '../../domain/usecases/get_unsent_leads.dart';
 import '../../domain/usecases/send_leads.dart';
 import '../../domain/repositories/lead_repository.dart';
@@ -20,6 +21,7 @@ class LeadSyncPage extends StatelessWidget {
         getUnsentLeads: di.sl<GetUnsentLeads>(),
         sendLeads: di.sl<SendLeads>(),
         leadRepository: di.sl<LeadRepository>(),
+        autoSyncService: di.sl(),
       )..add(const LoadUnsentLeadsEvent()),
       child: const Scaffold(
         appBar: CustomAppBar(
@@ -38,18 +40,9 @@ class _LeadSyncBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 117, 104, 31),
-              Colors.white
-            ],
-            stops: [0.0, 0.3],
-          ),
-        ),
+      child: GradientBackground(
+        colors: const [Color.fromARGB(255, 117, 104, 31), Colors.white],
+        stops: const [0.0, 0.3],
         child: BlocConsumer<LeadSyncBloc, LeadSyncState>(
           listener: (context, state) {
             if (state is LeadSyncSuccess) {
@@ -206,6 +199,30 @@ class _LeadSyncBody extends StatelessWidget {
     final canSync = state is LeadSyncLoaded && state.unsentLeads.isNotEmpty;
     final isLoading = state is LeadSyncLoading || state is LeadSyncSending;
 
+    Duration? selectedInterval;
+    bool autoEnabled = false;
+    DateTime? nextAt;
+    if (state is LeadSyncLoaded) {
+      selectedInterval = state.autoSyncInterval;
+      autoEnabled = state.autoSyncEnabled;
+      nextAt = state.nextAutoSyncAt;
+    } else if (state is LeadSyncSending) {
+      selectedInterval = state.autoSyncInterval;
+      autoEnabled = state.autoSyncEnabled;
+      nextAt = state.nextAutoSyncAt;
+    } else if (state is LeadSyncSuccess) {
+      selectedInterval = state.autoSyncInterval;
+      autoEnabled = state.autoSyncEnabled;
+      nextAt = state.nextAutoSyncAt;
+    }
+
+    final intervals = <Duration>[const Duration(minutes: 1), const Duration(minutes: 5), const Duration(minutes: 15)];
+
+    String formatDuration(Duration d) {
+      if (d.inMinutes < 1) return '${d.inSeconds}s';
+      return '${d.inMinutes} min';
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -241,26 +258,54 @@ class _LeadSyncBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton.icon(
-              onPressed: !isLoading
-                  ? () => context.read<LeadSyncBloc>().add(const LoadUnsentLeadsEvent())
-                  : null,
-              icon: const Icon(Icons.refresh),
-              label: const Text(
-                'Atualizar Lista',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF191244),
-                side: const BorderSide(color: Color(0xFF191244)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<Duration>(
+                  decoration: const InputDecoration(
+                    labelText: 'Intervalo Auto Sync',
+                    border: OutlineInputBorder(),
+                  ),
+                  initialValue: selectedInterval,
+                  items: intervals.map((d) => DropdownMenuItem(
+                    value: d,
+                    child: Text(formatDuration(d)),
+                  )).toList(),
+                  onChanged: (d) {
+                    if (d != null && autoEnabled) {
+                      context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(d));
+                    }
+                  },
                 ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Switch(
+                        value: autoEnabled,
+                        onChanged: (val) {
+                          if (val) {
+                            final interval = selectedInterval ?? intervals.first;
+                            context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(interval));
+                          } else {
+                            context.read<LeadSyncBloc>().add(const DisableAutoSyncEvent());
+                          }
+                        },
+                      ),
+                      const Text('Auto')
+                    ],
+                  ),
+                  if (autoEnabled && nextAt != null)
+                    Text(
+                      'Próx: ${nextAt.hour.toString().padLeft(2,'0')}:${nextAt.minute.toString().padLeft(2,'0')}:${nextAt.second.toString().padLeft(2,'0')}',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                ],
+              )
+            ],
           ),
         ],
       ),
@@ -302,76 +347,82 @@ class _LeadSyncBody extends StatelessWidget {
     }
 
     return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Leads Pendentes (${state.unsentLeads.length})',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF191244),
+      child: RefreshIndicator(
+        key: const Key('leadSyncRefreshIndicator'),
+        onRefresh: () async {
+          context.read<LeadSyncBloc>().add(const LoadUnsentLeadsEvent());
+        },
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Leads Pendentes (${state.unsentLeads.length})',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF191244),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.only(bottom: 16),
-                itemCount: state.unsentLeads.length,
-                separatorBuilder: (context, index) => Divider(
-                  height: 1,
-                  color: Colors.grey[200],
-                ),
-                itemBuilder: (context, index) {
-                  final lead = state.unsentLeads[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.orange[100],
-                      child: Icon(
-                        Icons.person,
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  itemCount: state.unsentLeads.length,
+                  separatorBuilder: (context, index) => Divider(
+                    height: 1,
+                    color: Colors.grey[200],
+                  ),
+                  itemBuilder: (context, index) {
+                    final lead = state.unsentLeads[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.orange[100],
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.orange[600],
+                        ),
+                      ),
+                      title: Text(
+                        lead.userName,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(lead.userEmail),
+                          Text(
+                            '${lead.carModel} - ${lead.formattedCarValue}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Icon(
+                        Icons.sync_problem,
                         color: Colors.orange[600],
                       ),
-                    ),
-                    title: Text(
-                      lead.userName,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(lead.userEmail),
-                        Text(
-                          '${lead.carModel} - ${lead.formattedCarValue}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: Icon(
-                      Icons.sync_problem,
-                      color: Colors.orange[600],
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
