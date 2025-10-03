@@ -15,6 +15,8 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
   Timer? _autoSyncTimer; // used only if service not provided
   Duration? _currentInterval;
   final AutoSyncService? _autoSyncService; // optional external service
+  StreamSubscription? _serviceSub;
+  Timer? _countdownTimer;
 
   LeadSyncBloc({
     required GetUnsentLeads getUnsentLeads,
@@ -31,6 +33,15 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
     on<EnableAutoSyncEvent>(_onEnableAutoSync);
     on<DisableAutoSyncEvent>(_onDisableAutoSync);
     on<AutoSyncTickEvent>(_onAutoSyncTick);
+
+    // Listen external service results to refresh state automatically
+    if (_autoSyncService != null) {
+      _serviceSub = _autoSyncService.results.listen((res) {
+        // After a successful auto sync cycle, reload unsent leads silently
+        add(const LoadUnsentLeadsEvent());
+      });
+      _startCountdown();
+    }
   }
 
   Future<void> _onLoadUnsentLeads(
@@ -148,6 +159,7 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
 
     if (_autoSyncService != null) {
       _autoSyncService.enable(event.interval);
+      _startCountdown();
     } else {
       _autoSyncTimer?.cancel();
       _autoSyncTimer = Timer.periodic(event.interval, (_) => add(const AutoSyncTickEvent()));
@@ -175,6 +187,7 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
     _currentInterval = null;
     if (_autoSyncService != null) {
       _autoSyncService.disable();
+      _countdownTimer?.cancel();
     } else {
       _autoSyncTimer?.cancel();
     }
@@ -203,8 +216,24 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _autoSyncTimer?.cancel();
+    _countdownTimer?.cancel();
+    await _serviceSub?.cancel();
     return super.close();
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (state is LeadSyncLoaded && _autoSyncService != null && _autoSyncService.isEnabled) {
+        // Re-dispatch a lightweight load just to refresh countdown display without heavy work
+        final s = state as LeadSyncLoaded;
+        final updated = s.copyWith(nextAutoSyncAt: _autoSyncService.nextRunAt);
+        // Directly updating state is acceptable via emit inside Bloc class, but here inside timer callback we are still within class scope.
+        // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+        emit(updated);
+      }
+    });
   }
 }

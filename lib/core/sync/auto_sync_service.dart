@@ -12,6 +12,7 @@ class AutoSyncService {
   Duration? _interval;
   bool _enabled = false;
   DateTime? _nextAt;
+  final _resultController = StreamController<AutoSyncResult>.broadcast();
 
   AutoSyncService({
     required this.getUnsentLeads,
@@ -22,6 +23,7 @@ class AutoSyncService {
   bool get isEnabled => _enabled;
   Duration? get interval => _interval;
   DateTime? get nextRunAt => _nextAt;
+  Stream<AutoSyncResult> get results => _resultController.stream;
 
   void enable(Duration interval) {
     _interval = interval;
@@ -42,6 +44,7 @@ class AutoSyncService {
   Future<void> _tick() async {
     if (!_enabled) return;
     final result = await getUnsentLeads();
+    int sent = 0;
     await result.fold((_) async {}, (leads) async {
       if (leads.isEmpty) return;
       final sendRes = await sendLeads(SendLeadsParams(leads: leads));
@@ -49,10 +52,14 @@ class AutoSyncService {
         for (final lead in leads) {
           if (lead.id != null) {
             await leadRepository.markLeadAsSent(lead.id!);
+            sent++;
           }
         }
       });
     });
+    if (sent > 0) {
+      _resultController.add(AutoSyncResult(sentCount: sent, timestamp: DateTime.now()));
+    }
     // schedule next
     if (_interval != null) {
       _nextAt = DateTime.now().add(_interval!);
@@ -60,4 +67,10 @@ class AutoSyncService {
   }
 
   Future<void> dispose() async { disable(); }
+}
+
+class AutoSyncResult {
+  final int sentCount;
+  final DateTime timestamp;
+  AutoSyncResult({required this.sentCount, required this.timestamp});
 }

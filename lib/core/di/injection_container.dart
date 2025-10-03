@@ -32,12 +32,14 @@ Future<void> init() async {
   // Bloc
   sl.registerFactory(() => CarBloc(getCars: sl()));
   sl.registerFactory(() => LeadBloc(saveLead: sl(), getLeads: sl()));
-  sl.registerFactory(() => LeadSyncBloc(
-        getUnsentLeads: sl(),
-        sendLeads: sl(),
-        leadRepository: sl(),
-    autoSyncService: sl(),
-      ));
+  sl.registerFactory(
+    () => LeadSyncBloc(
+      getUnsentLeads: sl(),
+      sendLeads: sl(),
+      leadRepository: sl(),
+      autoSyncService: sl(),
+    )
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetCars(sl()));
@@ -62,11 +64,13 @@ Future<void> init() async {
   );
 
   // Auto Sync Service (foreground)
-  sl.registerLazySingleton(() => AutoSyncService(
-        getUnsentLeads: sl(),
-        sendLeads: sl(),
-        leadRepository: sl(),
-      ));
+  sl.registerLazySingleton(
+    () => AutoSyncService(
+      getUnsentLeads: sl(),
+      sendLeads: sl(),
+      leadRepository: sl(),
+    )
+  );
 
   // Data sources
   sl.registerLazySingleton<CarRemoteDataSource>(
