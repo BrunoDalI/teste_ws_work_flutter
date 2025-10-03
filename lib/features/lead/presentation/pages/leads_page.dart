@@ -6,6 +6,7 @@ import '../../../../core/widgets/error_message_widget.dart';
 import '../../../../core/widgets/gradient_background_widget.dart';
 import '../../../../core/widgets/loading_message_widget.dart';
 import '../bloc/lead_bloc.dart';
+import '../widgets/empty_leads_message.dart';
 import '../widgets/lead_card.dart';
 
 /// Page for displaying all leads
@@ -33,38 +34,7 @@ class _LeadsPageState extends State<LeadsPage> {
                   return const LoadingMessage(message: 'Carregando clientes...');
                 } else if (state is LeadsLoaded) {
                   if (state.leads.isEmpty) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox_outlined,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Nenhum cliente interessado ainda',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Os interessados em carros aparecerão aqui',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                    return const EmptyLeadsMessage();
                   }
           
                   return ListView.builder(
