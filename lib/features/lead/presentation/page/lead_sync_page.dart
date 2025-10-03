@@ -24,7 +24,7 @@ class LeadSyncPage extends StatelessWidget {
       child: const Scaffold(
         appBar: CustomAppBar(
           title: 'Sincronização de Leads',
-          backgroundColor: Color(0xFF191244),
+          backgroundColor: Color.fromARGB(255, 117, 104, 31),
         ),
         body: _LeadSyncBody(),
       ),
@@ -37,19 +37,19 @@ class _LeadSyncBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF191244),
-            Color.fromARGB(255, 173, 216, 230),
-          ],
-          stops: [0.0, 0.3],
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 117, 104, 31),
+              Colors.white
+            ],
+            stops: [0.0, 0.3],
+          ),
         ),
-      ),
-      child: SafeArea(
         child: BlocConsumer<LeadSyncBloc, LeadSyncState>(
           listener: (context, state) {
             if (state is LeadSyncSuccess) {
@@ -154,7 +154,7 @@ class _LeadSyncBody extends StatelessWidget {
                 Text(
                   state.unsentLeads.isEmpty
                       ? 'Todos os leads foram sincronizados'
-                      : 'Toque em "Sincronizar" para enviar para WSWork',
+                      : 'Toque em "Sincronizar Leads" para enviar os leads pendentes',
                   style: TextStyle(
                     color: Colors.grey[600],
                   ),
