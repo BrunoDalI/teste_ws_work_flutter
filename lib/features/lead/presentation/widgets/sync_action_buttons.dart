@@ -79,55 +79,146 @@ class SyncActionButtons extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<Duration>(
-                  decoration: const InputDecoration(
-                    labelText: 'Intervalo Auto Sync',
-                    border: OutlineInputBorder(),
-                  ),
-                  initialValue: selectedInterval,
-                  items: intervals.map((d) => DropdownMenuItem(
-                    value: d,
-                    child: Text(formatDuration(d)),
-                  )).toList(),
-                  onChanged: (d) {
-                    if (d != null && autoEnabled) {
-                      context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(d));
-                    }
-                  },
-                ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: DropdownButtonFormField<Duration>(
+          //         decoration: const InputDecoration(
+          //           labelText: 'Intervalo Auto Sync',
+          //           border: OutlineInputBorder(),
+          //         ),
+          //         initialValue: selectedInterval,
+          //         items: intervals.map((d) => DropdownMenuItem(
+          //           value: d,
+          //           child: Text(formatDuration(d)),
+          //         )).toList(),
+          //         onChanged: (d) {
+          //           if (d != null && autoEnabled) {
+          //             context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(d));
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //     const SizedBox(width: 12),
+          //     Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Row(
+          //           children: [
+          //             Switch(
+          //               value: autoEnabled,
+          //               onChanged: (val) {
+          //                 if (val) {
+          //                   final interval = selectedInterval ?? intervals.first;
+          //                   context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(interval));
+          //                 } else {
+          //                   context.read<LeadSyncBloc>().add(const DisableAutoSyncEvent());
+          //                 }
+          //               },
+          //             ),
+          //             const Text('Auto'),
+          //           ],
+          //         ),
+          //         if (autoEnabled && nextAt != null)
+          //           Text(
+          //             'Próx: ${nextAt.hour.toString().padLeft(2, '0')}:${nextAt.minute.toString().padLeft(2, '0')}:${nextAt.second.toString().padLeft(2, '0')}',
+          //             style: const TextStyle(fontSize: 11, color: Colors.grey),
+          //           ),
+          //       ],
+          //     ),
+          //   ],
+          // ),
+
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color.fromARGB(255, 117, 104, 31).withValues(alpha: 0.5),
+                width: 2,
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Switch(
-                        value: autoEnabled,
-                        onChanged: (val) {
-                          if (val) {
-                            final interval = selectedInterval ?? intervals.first;
-                            context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(interval));
-                          } else {
-                            context.read<LeadSyncBloc>().add(const DisableAutoSyncEvent());
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(20),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Configurações de Auto Sync',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF191244),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<Duration>(
+                        decoration: InputDecoration(
+                          labelText: 'Intervalo',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        ),
+                        initialValue: selectedInterval,
+                        items: intervals.map((d) => DropdownMenuItem(
+                          value: d,
+                          child: Text(formatDuration(d)),
+                        )).toList(),
+                        onChanged: (d) {
+                          if (d != null && autoEnabled) {
+                            context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(d));
                           }
                         },
                       ),
-                      const Text('Auto'),
-                    ],
-                  ),
-                  if (autoEnabled && nextAt != null)
-                    Text(
-                      'Próx: ${nextAt.hour.toString().padLeft(2, '0')}:${nextAt.minute.toString().padLeft(2, '0')}:${nextAt.second.toString().padLeft(2, '0')}',
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Switch(
+                              value: autoEnabled,
+                              onChanged: (val) {
+                                if (val) {
+                                  final interval = selectedInterval ?? intervals.first;
+                                  context.read<LeadSyncBloc>().add(EnableAutoSyncEvent(interval));
+                                } else {
+                                  context.read<LeadSyncBloc>().add(const DisableAutoSyncEvent());
+                                }
+                              },
+                            ),
+                            const Text('Auto', style: TextStyle(fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                        if (autoEnabled && nextAt != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Próx: ${nextAt.hour.toString().padLeft(2, '0')}:${nextAt.minute.toString().padLeft(2, '0')}:${nextAt.second.toString().padLeft(2, '0')}',
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+
+
+
         ],
       ),
     );

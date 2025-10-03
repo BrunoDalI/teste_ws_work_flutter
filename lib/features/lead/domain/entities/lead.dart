@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 /// Lead entity representing a user's interest in buying a car
 class Lead extends Equatable {
@@ -70,5 +71,16 @@ class Lead extends Equatable {
   }
 
   /// Returns formatted car value as currency string
-  String get formattedCarValue => 'R\$ ${carValue.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  String get formattedCarValue {
+    double display = carValue;
+    if (display < 1000) {
+      final fractional = display - display.truncate();
+      final isInteger = fractional == 0;
+      final isHalf = (fractional - 0.5).abs() < 0.0000001;
+      if (isInteger || isHalf) {
+        display *= 1000;
+      }
+    }
+    return 'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(display)}';
+  }
 }

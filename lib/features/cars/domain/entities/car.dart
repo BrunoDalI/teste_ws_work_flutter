@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 /// Car entity representing a car in the domain layer
 class Car extends Equatable {
@@ -38,7 +39,20 @@ class Car extends Equatable {
   ];
 
   /// Returns formatted value as currency string
-  String get formattedValue => 'R\$ ${valor.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  String get formattedValue {
+    double display = valor;
+    if (display < 1000) {
+      final fractional = display - display.truncate();
+      final isInteger = fractional == 0;
+      final isHalf = (fractional - 0.5).abs() < 0.0000001;
+      if (isInteger || isHalf) {
+        display *= 1000;
+      }
+    }
+    return 'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(display)}';
+  }
+
+
 
   /// Returns formatted year string
   String get yearString => ano.toString();

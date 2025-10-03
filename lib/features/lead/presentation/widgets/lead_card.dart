@@ -8,7 +8,7 @@ class LeadCard extends StatelessWidget {
   final Lead lead;
 
   const LeadCard({super.key, required this.lead});
-
+  
   @override
   Widget build(BuildContext context) {
     return Card(

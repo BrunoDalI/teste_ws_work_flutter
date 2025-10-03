@@ -32,9 +32,9 @@ class CarCard extends StatelessWidget {
                   child: Text(
                     car.nomeModelo,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blueGrey[800],
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey[800],
+                    ),
                   ),
                 ),
                 Container(
