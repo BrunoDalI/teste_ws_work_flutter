@@ -4,9 +4,9 @@ import '../../../../core/di/injection_container.dart' as di;
 import '../../../lead/domain/entities/lead.dart';
 import '../bloc/car_bloc.dart';
 import '../../../lead/presentation/bloc/lead_bloc.dart';
-import '../../../lead/presentation/page/leads_page.dart';
 import '../widgets/car_card.dart';
 import '../widgets/user_info_dialog.dart';
+import '../../../lead/presentation/page/leads_page.dart';
 
 class CarPage extends StatefulWidget {
   const CarPage({super.key});
