@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/di/injection_container.dart' as di;
-import 'features/cars/presentation/page/car_page.dart';
+import 'features/cars/presentation/pages/car_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
