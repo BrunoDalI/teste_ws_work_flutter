@@ -7,6 +7,7 @@ import '../../../lead/presentation/bloc/lead_bloc.dart';
 import '../widgets/car_card.dart';
 import '../widgets/user_info_dialog.dart';
 import '../../../lead/presentation/page/leads_page.dart';
+import '../../../lead/presentation/page/lead_sync_page.dart';
 
 class CarPage extends StatefulWidget {
   const CarPage({super.key});
@@ -33,6 +34,18 @@ class _CarPageState extends State<CarPage> {
           foregroundColor: Colors.white,
           elevation: 0,
           actions: [
+            IconButton(
+              icon: const Icon(Icons.sync),
+              tooltip: 'Sincronizar Leads',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LeadSyncPage(),
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.list_alt),
               tooltip: 'Ver Interessados',

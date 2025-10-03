@@ -1,12 +1,9 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+
 
 // ignore_for_file: unused_element
 
 part of 'car_model.dart';
 
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
 
 CarModel _$CarModelFromJson(Map<String, dynamic> json) => CarModel(
   id: (json['id'] as num).toInt(),

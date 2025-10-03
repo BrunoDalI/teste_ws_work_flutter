@@ -10,6 +10,7 @@ class Lead extends Equatable {
   final DateTime createdAt;
   final String carModel;
   final double carValue;
+  final bool isSent;
 
   const Lead({
     this.id,
@@ -20,6 +21,7 @@ class Lead extends Equatable {
     required this.createdAt,
     required this.carModel,
     required this.carValue,
+    this.isSent = false,
   });
 
   @override
@@ -32,6 +34,7 @@ class Lead extends Equatable {
     createdAt,
     carModel,
     carValue,
+    isSent,
   ];
 
   /// Creates a copy of this Lead with the given fields replaced with new values
@@ -44,6 +47,7 @@ class Lead extends Equatable {
     DateTime? createdAt,
     String? carModel,
     double? carValue,
+    bool? isSent,
   }) {
     return Lead(
       id: id ?? this.id,
@@ -54,6 +58,7 @@ class Lead extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       carModel: carModel ?? this.carModel,
       carValue: carValue ?? this.carValue,
+      isSent: isSent ?? this.isSent,
     );
   }
 

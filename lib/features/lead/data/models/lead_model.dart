@@ -15,6 +15,7 @@ class LeadModel extends Lead {
     required super.createdAt,
     required super.carModel,
     required super.carValue,
+    super.isSent = false,
   });
 
   /// Creates a LeadModel from JSON map
@@ -34,6 +35,7 @@ class LeadModel extends Lead {
       createdAt: lead.createdAt,
       carModel: lead.carModel,
       carValue: lead.carValue,
+      isSent: lead.isSent,
     );
   }
 
@@ -48,6 +50,7 @@ class LeadModel extends Lead {
       createdAt: createdAt,
       carModel: carModel,
       carValue: carValue,
+      isSent: isSent,
     );
   }
 
@@ -62,6 +65,7 @@ class LeadModel extends Lead {
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       carModel: map['carModel'] as String,
       carValue: map['carValue'] as double,
+      isSent: (map['isSent'] as int?) == 1,
     );
   }
 
@@ -76,6 +80,7 @@ class LeadModel extends Lead {
       'createdAt': createdAt.millisecondsSinceEpoch,
       'carModel': carModel,
       'carValue': carValue,
+      'isSent': isSent ? 1 : 0,
     };
   }
 }

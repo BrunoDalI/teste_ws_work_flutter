@@ -108,4 +108,23 @@ class MockCarLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i6.LeadModel>> getUnsentLeads() =>
+      (super.noSuchMethod(
+            Invocation.method(#getUnsentLeads, []),
+            returnValue: _i3.Future<List<_i6.LeadModel>>.value(
+              <_i6.LeadModel>[],
+            ),
+          )
+          as _i3.Future<List<_i6.LeadModel>>);
+
+  @override
+  _i3.Future<void> markLeadAsSent(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markLeadAsSent, [id]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

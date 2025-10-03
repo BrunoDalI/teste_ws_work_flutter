@@ -105,4 +105,34 @@ class CarLocalDataSourceImpl implements CarLocalDataSource {
       throw CacheException('Failed to delete lead: $e');
     }
   }
+
+  @override
+  Future<List<LeadModel>> getUnsentLeads() async {
+    try {
+      final List<Map<String, dynamic>> maps = await database.query(
+        leadsTable,
+        where: 'isSent = ?',
+        whereArgs: [0], // 0 = false
+        orderBy: 'createdAt ASC',
+      );
+      
+      return maps.map((map) => LeadModel.fromMap(map)).toList();
+    } catch (e) {
+      throw CacheException('Failed to get unsent leads: $e');
+    }
+  }
+
+  @override
+  Future<void> markLeadAsSent(int id) async {
+    try {
+      await database.update(
+        leadsTable,
+        {'isSent': 1}, // 1 = true
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw CacheException('Failed to mark lead as sent: $e');
+    }
+  }
 }

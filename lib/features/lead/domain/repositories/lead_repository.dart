@@ -15,4 +15,16 @@ abstract class LeadRepository {
   
   /// Deletes a lead from the local database
   Future<Either<Failure, void>> deleteLead(int id);
+  
+  /// Sends a lead to the remote API
+  Future<Either<Failure, void>> sendLead(Lead lead);
+  
+  /// Sends multiple leads to the remote API
+  Future<Either<Failure, void>> sendLeads(List<Lead> leads);
+  
+  /// Gets unsent leads from the local database
+  Future<Either<Failure, List<Lead>>> getUnsentLeads();
+  
+  /// Marks a lead as sent
+  Future<Either<Failure, void>> markLeadAsSent(int id);
 }

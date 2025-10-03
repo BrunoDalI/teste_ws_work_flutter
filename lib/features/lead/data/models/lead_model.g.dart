@@ -15,6 +15,7 @@ LeadModel _$LeadModelFromJson(Map<String, dynamic> json) => LeadModel(
   createdAt: DateTime.parse(json['createdAt'] as String),
   carModel: json['carModel'] as String,
   carValue: (json['carValue'] as num).toDouble(),
+  isSent: json['isSent'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$LeadModelToJson(LeadModel instance) => <String, dynamic>{
@@ -26,4 +27,5 @@ Map<String, dynamic> _$LeadModelToJson(LeadModel instance) => <String, dynamic>{
   'createdAt': instance.createdAt.toIso8601String(),
   'carModel': instance.carModel,
   'carValue': instance.carValue,
+  'isSent': instance.isSent,
 };

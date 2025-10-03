@@ -26,4 +26,12 @@ abstract class CarLocalDataSource {
   /// Deletes a lead from local database
   /// Throws [CacheException] for all error codes
   Future<void> deleteLead(int id);
+  
+  /// Gets unsent leads from local database
+  /// Throws [CacheException] for all error codes
+  Future<List<LeadModel>> getUnsentLeads();
+  
+  /// Marks a lead as sent
+  /// Throws [CacheException] for all error codes
+  Future<void> markLeadAsSent(int id);
 }

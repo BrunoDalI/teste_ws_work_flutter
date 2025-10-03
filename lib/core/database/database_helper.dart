@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 class DatabaseHelper {
   static Database? _database;
   static const String _databaseName = 'cars_app.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2;
 
   // Table names
   static const String carsTable = 'cars';
@@ -24,6 +24,7 @@ class DatabaseHelper {
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -54,9 +55,20 @@ class DatabaseHelper {
         userPhone TEXT NOT NULL,
         createdAt INTEGER NOT NULL,
         carModel TEXT NOT NULL,
-        carValue REAL NOT NULL
+        carValue REAL NOT NULL,
+        isSent INTEGER NOT NULL DEFAULT 0
       )
     ''');
+  }
+
+  /// Handle database upgrades
+  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add isSent column to leads table
+      await db.execute('''
+        ALTER TABLE $leadsTable ADD COLUMN isSent INTEGER NOT NULL DEFAULT 0
+      ''');
+    }
   }
 
   /// Close the database
