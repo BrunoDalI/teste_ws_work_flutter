@@ -60,7 +60,7 @@ class AutoSyncService {
     if (sent > 0) {
       _resultController.add(AutoSyncResult(sentCount: sent, timestamp: DateTime.now()));
     }
-    // schedule next
+
     if (_interval != null) {
       _nextAt = DateTime.now().add(_interval!);
     }

@@ -1,10 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'lead_model.dart';
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
 
 LeadModel _$LeadModelFromJson(Map<String, dynamic> json) => LeadModel(
   id: (json['id'] as num?)?.toInt(),

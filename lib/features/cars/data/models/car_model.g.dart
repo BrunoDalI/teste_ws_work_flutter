@@ -1,9 +1,5 @@
-
-
 // ignore_for_file: unused_element
-
 part of 'car_model.dart';
-
 
 CarModel _$CarModelFromJson(Map<String, dynamic> json) => CarModel(
   id: (json['id'] as num).toInt(),

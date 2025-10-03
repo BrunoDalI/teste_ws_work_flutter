@@ -12,9 +12,9 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
   final GetUnsentLeads _getUnsentLeads;
   final SendLeads _sendLeads;
   final LeadRepository _leadRepository;
-  Timer? _autoSyncTimer; // used only if service not provided
+  Timer? _autoSyncTimer;
   Duration? _currentInterval;
-  final AutoSyncService? _autoSyncService; // optional external service
+  final AutoSyncService? _autoSyncService;
   StreamSubscription? _serviceSub;
   Timer? _countdownTimer;
 

@@ -33,7 +33,7 @@ class LeadRemoteDataSourceImpl implements LeadRemoteDataSource {
           },
           followRedirects: true,
           maxRedirects: 5,
-          validateStatus: (status) => status! < 400, // Aceita até 399
+          validateStatus: (status) => status! < 400,
         ),
       );
       
@@ -60,7 +60,6 @@ class LeadRemoteDataSourceImpl implements LeadRemoteDataSource {
     Exception? lastException;
     
     try {
-      // Tenta primeiro enviar individualmente
       print('Tentando enviar ${leads.length} leads individualmente para: $leadsEndpoint');
       
       for (int i = 0; i < leads.length; i++) {
