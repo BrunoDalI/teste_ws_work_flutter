@@ -299,6 +299,10 @@ Juntos, BLoC + Clean Architecture + SOLID + Dio entregam:
 - Evolução incremental sem refatorações amplas
 - Clareza de fluxo (UI -> Evento -> BLoC -> UseCase -> Repository -> DataSource)
 
+### Adicional
+Aqui estou montando um guia para compartilhar conhecimento onde explico tudo com exemplos: 
+https://brunodali.github.io/flutter_guide_webpage/
+
 ## 🔍 Tratamento de Erros
 
 ### Tipos de Erro
