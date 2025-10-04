@@ -28,7 +28,7 @@ class UnsentLeadsList extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Todos os leads foram sincronizados com a WSWork.',
+                'Todos os leads foram sincronizados.',
                 style: TextStyle(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),

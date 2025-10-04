@@ -70,7 +70,7 @@ class _CarPageState extends State<CarPage> {
             },
             child: GradientBackground(
               colors: const [Color(0xFF191244), Colors.white],
-              stops: const [0.0, 0.3],
+              stops: const [0.0, 0.5],
               child: BlocBuilder<CarBloc, CarState>(
                 builder: (context, state) {
                   if (state is CarLoading) {

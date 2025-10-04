@@ -46,7 +46,7 @@ class _LeadSyncBody extends StatelessWidget {
     return SafeArea(
       child: GradientBackground(
         colors: const [Color.fromARGB(255, 117, 104, 31), Colors.white],
-        stops: const [0.0, 0.3],
+        stops: const [0.0, 0.5],
         child: BlocConsumer<LeadSyncBloc, LeadSyncState>(
           listener: (context, state) {
             if (state is LeadSyncSuccess) {

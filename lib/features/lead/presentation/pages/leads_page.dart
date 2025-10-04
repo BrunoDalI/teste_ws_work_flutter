@@ -61,7 +61,7 @@ class _LeadsPageState extends State<LeadsPage> {
         body: SafeArea(
           child: GradientBackground(
             colors: [Colors.green[600]!, Colors.white],
-            stops: const [0.0, 0.3],
+            stops: const [0.0, 0.5],
             child: BlocBuilder<LeadBloc, LeadState>(
               builder: (context, state) {
                 Widget inner;

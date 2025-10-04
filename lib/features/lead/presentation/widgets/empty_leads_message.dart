@@ -11,17 +11,17 @@ class EmptyLeadsMessage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
+            Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[800]),
             const SizedBox(height: 16),
             Text(
               'Nenhum cliente interessado ainda',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
             ),
             const SizedBox(height: 8),
             Text(
               'Os interessados em carros aparecerão aqui',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500]),
+              style: TextStyle(color: Colors.grey[700]),
             ),
           ],
         ),
