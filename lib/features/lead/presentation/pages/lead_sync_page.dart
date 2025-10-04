@@ -66,13 +66,17 @@ class _LeadSyncBody extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            return Column(
-              children: [
-                SyncStatusCard(state: state),
-                const SizedBox(height: 20),
-                SyncActionButtons(state: state),
-                const SizedBox(height: 20),
-                if (state is LeadSyncLoaded) UnsentLeadsList(state: state),
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: SyncStatusCard(state: state)),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                SliverToBoxAdapter(child: SyncActionButtons(state: state)),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                if (state is LeadSyncLoaded)
+                  SliverFillRemaining(
+                    hasScrollBody: true,
+                    child: UnsentLeadsList(state: state, expand: false),
+                  ),
               ],
             );
           },

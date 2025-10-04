@@ -64,47 +64,69 @@ class _LeadsPageState extends State<LeadsPage> {
             stops: const [0.0, 0.5],
             child: BlocBuilder<LeadBloc, LeadState>(
               builder: (context, state) {
-                Widget inner;
-                if (state is LeadLoading) {
-                  inner = const LoadingMessage(message: 'Carregando clientes...');
-                } else if (state is LeadsLoaded) {
-                  if (state.leads.isEmpty) {
-                    inner = const EmptyLeadsMessage();
-                  } else {
-                    inner = ListView.builder(
-                      key: const Key('leadsListView'),
-                      padding: const EdgeInsets.only(top: 16, bottom: 16),
-                      itemCount: state.leads.length,
-                      itemBuilder: (context, index) {
-                        final lead = state.leads[index];
-                        return LeadCard(lead: lead);
-                      },
-                    );
-                  }
-                } else if (state is LeadError) {
-                  inner = ErrorMessage(
-                    title: 'Erro ao carregar clientes',
-                    message: state.message,
-                    onRetry: () => _leadBloc!.add(const LoadLeadsEvent()),
-                    color: Colors.green,
-                  );
-                } else {
-                  inner = const SizedBox.shrink();
-                }
+                final width = MediaQuery.of(context).size.width;
+                final bool isGrid = width >= 760;
 
                 return RefreshIndicator(
                   key: const Key('leadsRefreshIndicator'),
                   onRefresh: () async => _leadBloc!.add(const LoadLeadsEvent()),
-                  child: inner is ListView
-                    ? inner : ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 32),
-                          child: inner,
-                        ),
-                      ],
-                    ),
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      if (state is LeadLoading)
+                        const SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(child: LoadingMessage(message: 'Carregando clientes...')),
+                        )
+                      else if (state is LeadError)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(
+                            child: ErrorMessage(
+                              title: 'Erro ao carregar clientes',
+                              message: state.message,
+                              onRetry: () => _leadBloc!.add(const LoadLeadsEvent()),
+                              color: Colors.green,
+                            ),
+                          ),
+                        )
+                      else if (state is LeadsLoaded && state.leads.isEmpty)
+                        const SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(child: EmptyLeadsMessage()),
+                        )
+                      else if (state is LeadsLoaded && !isGrid)
+                        SliverPadding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 24),
+                          sliver: SliverList(
+                            key: const Key('leadsListView'),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => LeadCard(lead: state.leads[index]),
+                              childCount: state.leads.length,
+                            ),
+                          ),
+                        )
+                      else if (state is LeadsLoaded && isGrid)
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                          sliver: SliverGrid(
+                            key: const Key('leadsGridView'),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 1.6,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => LeadCard(lead: state.leads[index]),
+                              childCount: state.leads.length,
+                            ),
+                          ),
+                        )
+                      else
+                        const SliverToBoxAdapter(child: SizedBox.shrink()),
+                    ],
+                  ),
                 );
               },
             ),

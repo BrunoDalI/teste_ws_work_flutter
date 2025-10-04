@@ -76,21 +76,47 @@ class _CarPageState extends State<CarPage> {
                   if (state is CarLoading) {
                     return const LoadingMessage(message: 'Carregando carros...');
                   } else if (state is CarLoaded) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<CarBloc>().add(const RefreshCarsEvent());
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isGrid = constraints.maxWidth >= 760; // breakpoint simples
+                        final cars = state.cars;
+                        final content = isGrid
+                            ? GridView.builder(
+                                key: const Key('carsGridView'),
+                                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 1.4,
+                                ),
+                                itemCount: cars.length,
+                                itemBuilder: (context, index) {
+                                  final car = cars[index];
+                                  return CarCard(
+                                    car: car,
+                                    onEuQueroPressed: () => showUserInfoDialog(context, car),
+                                  );
+                                },
+                              )
+                            : ListView.builder(
+                                key: const Key('carsListView'),
+                                padding: const EdgeInsets.only(top: 8, bottom: 16),
+                                itemCount: cars.length,
+                                itemBuilder: (context, index) {
+                                  final car = cars[index];
+                                  return CarCard(
+                                    car: car,
+                                    onEuQueroPressed: () => showUserInfoDialog(context, car),
+                                  );
+                                },
+                              );
+
+                        return RefreshIndicator(
+                          onRefresh: () async => context.read<CarBloc>().add(const RefreshCarsEvent()),
+                          child: content,
+                        );
                       },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(top: 16, bottom: 16),
-                        itemCount: state.cars.length,
-                        itemBuilder: (context, index) {
-                          final car = state.cars[index];
-                          return CarCard(
-                            car: car,
-                            onEuQueroPressed: () => showUserInfoDialog(context, car),
-                          );
-                        },
-                      ),
                     );
                   } else if (state is CarError) {
                     return ErrorMessage(
