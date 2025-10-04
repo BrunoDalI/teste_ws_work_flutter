@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:teste_ws_work_flutter/core/sync/auto_sync_service.dart';
@@ -30,8 +29,8 @@ class FakeLeadRepo implements LeadRepository {
   Future<Either<Failure, void>> sendLead(Lead lead) async => const Right(null);
 }
 
-class FakeGetUnsent extends GetUnsentLeads { FakeGetUnsent(LeadRepository repo):super(repo);} 
-class FakeSendLeads extends SendLeads { FakeSendLeads(LeadRepository repo):super(repo);} 
+class FakeGetUnsent extends GetUnsentLeads { FakeGetUnsent(super.repo);} 
+class FakeSendLeads extends SendLeads { FakeSendLeads(super.repo);} 
 
 void main() {
   test('AutoSyncService envia leads e publica resultado', () async {

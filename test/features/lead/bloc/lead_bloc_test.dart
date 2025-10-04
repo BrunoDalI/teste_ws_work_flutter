@@ -83,7 +83,7 @@ void main() {
     blocTest<LeadBloc, LeadState>(
       'emits [LeadLoading, LeadError] on failure',
       build: () {
-        mockGetLeads = FakeGetLeads(() async => Left(const ServerFailure('err')));
+        mockGetLeads = FakeGetLeads(() async => const Left(ServerFailure('err')));
         return LeadBloc(saveLead: mockSaveLead, getLeads: mockGetLeads);
       },
       act: (b) => b.add(const LoadLeadsEvent()),
@@ -105,7 +105,7 @@ void main() {
     blocTest<LeadBloc, LeadState>(
       'emits [LeadLoading, LeadError] on failure',
       build: () {
-        mockSaveLead = FakeSaveLead((_) async => Left(const ValidationFailure('invalid')));
+        mockSaveLead = FakeSaveLead((_) async => const Left(ValidationFailure('invalid')));
         return LeadBloc(saveLead: mockSaveLead, getLeads: mockGetLeads);
       },
       act: (b) => b.add(SaveLeadEvent(lead: tLead)),

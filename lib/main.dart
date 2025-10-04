@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:teste_ws_work_flutter/core/widgets/splash_screen_widget.dart';
 import 'core/di/injection_container.dart' as di;
-import 'features/cars/presentation/pages/car_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const CarPage(),
+      home: const SplashScreen(),
     );
   }
 }

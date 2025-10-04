@@ -299,11 +299,51 @@ Juntos, BLoC + Clean Architecture + SOLID + Dio entregam:
 - Evolução incremental sem refatorações amplas
 - Clareza de fluxo (UI -> Evento -> BLoC -> UseCase -> Repository -> DataSource)
 
+
 ### Adicional
 Aqui estou montando um guia para compartilhar conhecimento onde explico tudo com exemplos: 
 https://brunodali.github.io/flutter_guide_webpage/
 
-## 🔍 Tratamento de Erros
+## �️ Monitoramento e Qualidade (Flutter DevTools)
+Uso sistemático do DevTools para garantir estabilidade, performance e saúde do app:
+
+### Analyze (Análise Estática)
+- Comando periódico: `flutter analyze`.
+- Objetivo: detectar imports não usados, padrões incorretos e problemas antes do runtime.
+- Resultado: código mais consistente e menor risco de regressões silenciosas.
+
+### Performance
+- Aba Performance para observar timeline de frames e detectar jank.
+- Otimizações aplicadas: remoção de rebuilds desnecessários (ex: consolidando scroll em `CustomScrollView`).
+- Validação de animação suave na Splash (entrada do ícone de carro sem quedas de frame).
+
+### Memory
+- Monitoramento de heap durante navegação CarPage -> LeadsPage -> LeadSyncPage.
+- Conferência de descarte de controllers (AnimationController / timers em bloc/services).
+- Resultado: ausência de crescimento contínuo (indicador de não haver leak evidente).
+
+### Widget Inspector
+- Uso para inspecionar árvore e constraints ao resolver erro de viewport (scroll aninhado).
+- Benefício: diagnosticou rapidamente necessidade de unificar estrutura em Slivers.
+
+### Network
+- Observação de chamadas Dio (latência e payload) para confirmar cache vs remoto.
+- Verificação de status codes e tempo médio de resposta.
+
+### Logging / Console
+- Logs de estados de BLoC (transições) usados para validar fluxo de sincronização automática.
+- Simplificação: preferido logs pontuais ao invés de verbose global para manter clareza.
+
+### Timeline
+- Inspeção de eventos em sequência durante sincronização em lote para garantir que UI não bloqueia.
+- Uso complementar à aba Performance para correlacionar picos de CPU com envio de leads.
+
+### Resumo Geral
+- Conjunto de ferramentas aplicado de forma incremental (durante implementação / refino / testes).
+- Foco em detectar cedo: layout quebrado, jank, consumo de memória e gargalos de rede.
+- Resultado: app consistente, responsivo e com ciclo de feedback rápido.
+
+## �🔍 Tratamento de Erros
 
 ### Tipos de Erro
 - **ServerException**: Erros de servidor/API

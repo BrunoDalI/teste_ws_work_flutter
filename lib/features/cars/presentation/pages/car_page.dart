@@ -32,14 +32,14 @@ class _CarPageState extends State<CarPage> {
         appBar: CustomAppBar(
           title: 'Carros Disponíveis', 
           backgroundColor: const Color(0xFF191244),
+          leading:  IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Sincronizar Leads',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const LeadSyncPage()));
+            },
+          ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.sync),
-              tooltip: 'Sincronizar Leads',
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const LeadSyncPage()));
-              },
-            ),
             IconButton(
               icon: const Icon(Icons.list_alt),
               tooltip: 'Ver Interessados',
