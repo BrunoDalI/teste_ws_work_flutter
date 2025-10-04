@@ -15,3 +15,9 @@ class GetLeads implements NoParamsUseCase<List<Lead>> {
     return await repository.getLeads();
   }
 }
+
+/*
+Resumo (GetLeads):
+Use case fino que delega ao repositório. Mantido separado para padronizar chamadas
+e facilitar composição futura (ex: paginação, filtros) sem alterar UI/BLoC.
+*/

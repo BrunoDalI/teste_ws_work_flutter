@@ -96,3 +96,13 @@ class LeadSyncError extends LeadSyncState {
   @override
   List<Object> get props => [message];
 }
+
+/*
+Resumo (LeadSyncState):
+Modelo de estados focado em refletir ciclo de vida da sincronização:
+- Loaded: contém dados e configurações ativas
+- Sending: feedback de operação em andamento
+- Success: reporta quantidade enviada (antes de novo carregamento)
+- Error: mensagem recuperável para retry
+Uso de props customizados em cada estado garante re-render mínimo no BLoC/UI.
+*/

@@ -16,6 +16,13 @@ class SendLeads implements UseCase<void, SendLeadsParams> {
   }
 }
 
+/*
+Resumo (SendLeads):
+Envia lote de leads em uma única chamada do repositório permitindo otimização
+e redução de overhead de rede. Parâmetro explícito permite adicionar flags
+posteriores (ex: prioridade) sem quebrar assinaturas existentes.
+*/
+
 /// Parameters for SendLeads use case
 class SendLeadsParams {
   final List<Lead> leads;

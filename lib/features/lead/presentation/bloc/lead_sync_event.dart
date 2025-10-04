@@ -36,3 +36,9 @@ class DisableAutoSyncEvent extends LeadSyncEvent {
 class AutoSyncTickEvent extends LeadSyncEvent {
   const AutoSyncTickEvent();
 }
+
+/*
+Resumo (LeadSyncEvent):
+Eventos segmentados para clareza: carregamento inicial, sync manual, habilitar/desabilitar
+auto-sync e tick interno. Separar AutoSyncTickEvent evita expor detalhes de agendamento à UI.
+*/

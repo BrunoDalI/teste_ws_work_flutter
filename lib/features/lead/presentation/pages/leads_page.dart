@@ -136,3 +136,12 @@ class _LeadsPageState extends State<LeadsPage> {
     );
   }
 }
+
+/*
+Resumo (LeadsPage):
+Página exibe lista de leads com responsividade essencial (lista vs grid >=760px) usando
+um único CustomScrollView para evitar conflitos de viewport. Escuta AutoSyncService via
+stream para re-disparar carregamento quando leads pendentes forem enviados automaticamente.
+Utiliza SliverFillRemaining para estados de loading/erro/vazio garantindo centralização
+vertical sem overflow. RefreshIndicator permite atualização manual via gesto pull-to-refresh.
+*/

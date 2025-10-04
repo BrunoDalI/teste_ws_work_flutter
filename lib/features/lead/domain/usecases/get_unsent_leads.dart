@@ -15,3 +15,9 @@ class GetUnsentLeads implements NoParamsUseCase<List<Lead>> {
     return await repository.getUnsentLeads();
   }
 }
+
+/*
+Resumo (GetUnsentLeads):
+Fornece lista de leads pendentes (isSent=false) para UI ou serviços como AutoSyncService.
+Centraliza chamada para permitir políticas futuras (ex: limite, ordenação).
+*/

@@ -224,3 +224,10 @@ class SyncActionButtons extends StatelessWidget {
     );
   }
 }
+
+/*
+Resumo (SyncActionButtons):
+Agrupa ações de sincronização manual e configuração de auto sync (intervalo + toggle).
+Mantém leitura tolerante de diferentes estados (Loaded/Sending/Success) para preservar
+seleção e estado visual. Usa Dropdown + Switch para permitir ajuste dinâmico do intervalo.
+*/

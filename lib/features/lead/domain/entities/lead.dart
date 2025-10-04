@@ -84,3 +84,10 @@ class Lead extends Equatable {
     return 'R\$ ${NumberFormat("#,##0.00", "pt_BR").format(display)}';
   }
 }
+
+/*
+Resumo (Entidade Lead):
+Representa intenção de compra de um carro. Inclui heurística em formattedCarValue para
+interpretar valores abreviados (<1000 inteiros ou .5) multiplicando por 1000 antes de formatar
+segundo locale pt_BR. Isso melhora aceitação de entradas como "50" significando 50.000.
+*/

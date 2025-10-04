@@ -74,3 +74,16 @@ class AutoSyncResult {
   final DateTime timestamp;
   AutoSyncResult({required this.sentCount, required this.timestamp});
 }
+
+/*
+Resumo (AutoSyncService):
+Serviço responsável por sincronização periódica dos leads não enviados. Mantém estado interno
+(timer, próximo horário de execução e flag enabled) e expõe um stream broadcast de resultados
+para que múltiplos listeners (ex: páginas ou bloc) reajam. A estratégia é simples:
+1. enable(interval) agenda Timer.periodic.
+2. Em cada tick busca leads pendentes, tenta enviar em lote e marca como enviados.
+3. Emite AutoSyncResult somente quando houve pelo menos 1 lead enviado.
+4. Atualiza a previsão de próxima execução (nextRunAt) para exibir feedback ao usuário.
+Decisão: evitar dependência em BLoC aqui para manter reuso em camadas distintas e facilitar testes
+unitários isolados.
+*/

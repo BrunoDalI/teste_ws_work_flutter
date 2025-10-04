@@ -105,3 +105,10 @@ class SyncStatusCard extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
+
+/*
+Resumo (SyncStatusCard):
+Widget de apresentação que interpreta estado de sincronização e mostra mensagens
+contextuais (pendentes, enviando, erro). Objetivo é fornecer feedback rápido e
+visual consistente independente de onde for usado.
+*/

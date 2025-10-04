@@ -15,3 +15,10 @@ class GetCars implements NoParamsUseCase<List<Car>> {
     return await repository.getCars();
   }
 }
+
+/*
+Resumo (GetCars):
+Use case fino responsável por recuperar lista de carros delegando a política
+de origem (remota/cache) ao repositório. Reforça o isolamento da camada de
+apresentação e facilita extensão futura (filtros, paginação) sem quebrar UI.
+*/

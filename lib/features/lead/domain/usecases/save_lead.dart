@@ -17,6 +17,12 @@ class SaveLead implements UseCase<void, SaveLeadParams> {
   }
 }
 
+/*
+Resumo (SaveLead):
+Encapsula persistência de um lead permitindo validações/transformações futuras sem
+impactar chamadores. Parâmetro tipado (SaveLeadParams) favorece extensões.
+*/
+
 /// Parameters for SaveLead use case
 class SaveLeadParams extends Equatable {
   final Lead lead;

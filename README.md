@@ -1,4 +1,4 @@
-# Cars App - Flutter Clean Architecture
+# Cars & Leads App - Flutter Clean Architecture + Auto Sync
 
 ## 📱 Sobre o Projeto
 
@@ -13,6 +13,10 @@ Este é um aplicativo Flutter desenvolvido seguindo os princípios de **Clean Ar
 - ✅ **Armazenamento Local**: Salva leads no SQLite
 - ✅ **Visualização de Interessados**: Lista todos os leads salvos
 - ✅ **Offline First**: Cache local para funcionamento sem internet
+- ✅ **Pull-to-Refresh**: Atualização por gesto nas páginas de leads
+- ✅ **Auto-Sincronização Configurável**: Intervalos (1 / 5 / 15 min) para envio automático de leads pendentes
+- ✅ **Heurística de Valor de Carro**: Ajusta valores abreviados (ex: 50 => 50.000) antes de formatar
+- ✅ **Arquitetura Sliver nas listas**: Evita erros de viewport e melhora consistência de layout
 
 ## 🏗️ Arquitetura
 
@@ -121,29 +125,25 @@ flutter run
 
 ## 🧪 Testes
 
-O projeto inclui diferentes tipos de testes:
+Conjunto atual focado em fluxos críticos de sincronização e estado:
 
-### Testes Unitários
-- **BLoC Tests**: Testam os estados e eventos dos BLoCs
-- **Repository Tests**: Testam a lógica dos repositórios
-- **UseCase Tests**: Testam os casos de uso
+| Arquivo | Objetivo |
+|---------|----------|
+| `test/features/lead/bloc/lead_bloc_test.dart` | Transições principais de `LeadBloc` (carregar / salvar) |
+| `test/core/sync/auto_sync_service_test.dart` | Verifica envio periódico e marcação de leads como enviados |
+| `test/features/lead/domain/lead_entity_test.dart` | Garante heurística de formatação de valor de carro |
 
-### Testes de Widget
-- **CarCard Test**: Testa o widget de card do carro
-- **UserInfoDialog Test**: Testa o formulário de dados do usuário
-
-### Executar Testes
-
-```bash
-# Todos os testes
+Execução:
+```powershell
 flutter test
+```
 
-# Testes específicos
-flutter test test/features/cars/presentation/bloc/car_bloc_test.dart
-
-# Com coverage
+Cobertura (opcional):
+```powershell
 flutter test --coverage
 ```
+
+Observação: Foram usados fakes ao invés de `mockito` para reduzir boilerplate e acelerar feedback.
 
 ## 📊 Estrutura de Dados
 
@@ -250,6 +250,15 @@ CREATE TABLE leads (
 - Campos: nome, email, telefone
 - Validações em tempo real
 
+### Auto-Sincronização de Leads
+1. UI ativa auto-sync selecionando intervalo.
+2. `AutoSyncService.enable(interval)` inicia `Timer.periodic`.
+3. A cada tick: busca leads `isSent=false` -> envia em lote -> marca como enviados -> emite `AutoSyncResult`.
+4. Página / BLoC escuta stream e dispara `LoadLeadsEvent` para refletir novos estados.
+5. Desativação via `disable()` cancela timer e limpa previsão de próxima execução.
+
+Métricas básicas (expostas internamente): próxima execução (`nextRunAt`), intervalo e stream de resultados.
+
 ## 🎨 Design Patterns Utilizados
 
 1. **Repository Pattern**: Abstração da camada de dados
@@ -258,6 +267,37 @@ CREATE TABLE leads (
 4. **Dependency Injection**: Inversão de controle
 5. **Factory Pattern**: Criação de objetos
 6. **Observer Pattern**: Comunicação via streams
+
+## 🤔 Por que BLoC, SOLID, Clean Architecture e Dio?
+
+### BLoC
+- Separação clara de UI e lógica de negócio via eventos/estados.
+- Facilita testes unitários isolando side-effects.
+- Escalável: múltiplos fluxos de estado podem coexistir sem acoplamento direto aos widgets.
+
+### Clean Architecture
+- Protege regras de negócio de detalhes de implementação (HTTP, banco, UI).
+- Permite substituição de camadas (ex: trocar Dio por outro cliente) sem tocar domínio.
+- Estrutura previsível reduz curva de aprendizado para novos contribuidores.
+
+### Princípios SOLID
+- SRP: cada classe com responsabilidade única (ex: UseCases finos, Repositórios abstratos).
+- OCP: novos fluxos (ex: auto sync) adicionados sem modificar casos de uso existentes.
+- LSP: abstrações (repositories, usecases) podem ser trocadas por fakes/mocks em testes.
+- ISP: interfaces enxutas (LeadRepository/CarRepository) evitam dependências desnecessárias.
+- DIP: Domínio depende de abstrações; infraestrutura injeta implementações concretas via DI (`get_it`).
+
+### Dio
+- Recursos avançados (interceptors, cancel tokens, timeout configurável) prontos para produção.
+- Facilidade para adicionar logging e retry estrategicamente.
+- Melhor controle de resposta/erros comparado ao `http` simples, com suporte robusto a FormData e Streams.
+
+### Benefício Combinado
+Juntos, BLoC + Clean Architecture + SOLID + Dio entregam:
+- Manutenção facilitada
+- Alto nível de testabilidade
+- Evolução incremental sem refatorações amplas
+- Clareza de fluxo (UI -> Evento -> BLoC -> UseCase -> Repository -> DataSource)
 
 ## 🔍 Tratamento de Erros
 
@@ -314,34 +354,6 @@ O projeto usa `flutter_lints` para manter qualidade do código:
 ```yaml
 include: package:flutter_lints/flutter.yaml
 ```
-
-## 🚀 Próximos Passos
-
-### Melhorias Possíveis
-1. **Autenticação**: Login/registro de usuários
-2. **Push Notifications**: Notificar sobre novos carros
-3. **Favoritos**: Sistema de carros favoritos
-4. **Filtros**: Filtrar carros por preço, ano, etc.
-5. **Chat**: Comunicação com vendedores
-6. **Analytics**: Tracking de eventos
-7. **CI/CD**: Pipeline automatizado
-
-### Testes Adicionais
-1. **Integration Tests**: Testes end-to-end
-2. **Performance Tests**: Testes de performance
-3. **Accessibility Tests**: Testes de acessibilidade
-
-## 👨‍💻 Autor
-
-Desenvolvido seguindo as melhores práticas de desenvolvimento Flutter com foco em:
-- Código limpo e manutenível
-- Arquitetura escalável
-- Testes abrangentes
-- Documentação completa
-
-## 📄 Licença
-
-Este projeto é para fins educacionais e demonstração de técnicas avançadas de desenvolvimento Flutter.
 
 ---
 

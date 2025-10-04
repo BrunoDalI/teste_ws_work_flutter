@@ -237,3 +237,17 @@ class LeadSyncBloc extends Bloc<LeadSyncEvent, LeadSyncState> {
     });
   }
 }
+
+/*
+Resumo (LeadSyncBloc):
+Orquestra ciclo de sincronização manual e automática dos leads pendentes, mantendo
+estado enriquecido (lista de pendentes, flags e timestamp da próxima execução).
+Integra com AutoSyncService quando disponível (DI) para delegar timer e reaproveitar
+lógica centralizada. Fallback próprio com Timer.periodic se serviço não for injetado.
+Conceitos-chave:
+- Eventos explícitos (Enable/DisableAutoSync) isolam efeitos colaterais (timers)
+- AutoSyncTickEvent dispara sincronização silenciosa ou atualiza agendamento
+- Countdown via timer secundário apenas para atualizar UI (próxima execução)
+Decisão: manter estados granulares (Loaded/Sending/Success/Error) para facilitar
+exibição de feedback imediato sem sobrecarregar UI com cálculos.
+*/

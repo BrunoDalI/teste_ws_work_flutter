@@ -136,3 +136,14 @@ class _CarPageState extends State<CarPage> {
     );
   }
 }
+
+/*
+Resumo (CarPage):
+Tela principal listando carros consumidos de API com fallback local. Responsividade essencial
+via breakpoint simples para alternar entre ListView e GridView. Integração com LeadBloc para
+capturar evento de interesse ("EU QUERO") e fornecer feedback imediato via SnackBar. Também
+exibe ações de navegação direta para páginas de sincronização e listagem de leads.
+Decisões: Uso de MultiBlocProvider para simplificar escopo e evitar dependências globais na UI;
+RefreshIndicator para reforçar controle manual de atualização. Mantido foco em clareza e
+redução de sobrecarga visual.
+*/

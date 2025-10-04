@@ -85,3 +85,15 @@ class _LeadSyncBody extends StatelessWidget {
     );
   }
 }
+
+/*
+Resumo (LeadSyncPage):
+Camada de apresentação dedicada ao monitoramento e controle da sincronização de leads.
+Estratégias:
+- Usa BlocConsumer para combinar reação a efeitos (SnackBars) e rebuild de UI.
+- Estrutura com CustomScrollView + Slivers para evitar conflitos de altura e permitir
+  layout adaptável sem scrolls aninhados.
+- Separa área de status, ações e listagem de pendentes para clareza visual e reuso de widgets.
+Motivação: Fornecer feedback contínuo sobre progresso e permitir ativar/desativar auto sync
+sem navegar para outra tela.
+*/

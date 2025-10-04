@@ -44,3 +44,11 @@ class LeadBloc extends Bloc<LeadEvent, LeadState> {
     );
   }
 }
+
+/*
+Resumo (LeadBloc):
+Centraliza transições de estado para operações básicas com leads: carregar todos e salvar.
+Mantém estados enxutos para simplificar UI e testes (Loading, Saved, Loaded, Error).
+Decisão: Após salvar um lead emitimos LeadSaved em vez de recarregar imediatamente a lista para
+permitir que a UI decida quando atualizar (ex: navegar de volta e disparar LoadLeadsEvent).
+*/

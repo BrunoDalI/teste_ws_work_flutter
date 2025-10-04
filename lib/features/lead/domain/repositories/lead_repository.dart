@@ -28,3 +28,10 @@ abstract class LeadRepository {
   /// Marks a lead as sent
   Future<Either<Failure, void>> markLeadAsSent(int id);
 }
+
+/*
+Resumo (LeadRepository):
+Contrato único agregando operações CRUD locais, consulta de pendentes e envio (single/batch).
+Separação permite que AutoSyncService e casos de uso fiquem desacoplados da implementação
+(ex: SQLite + HTTP). markLeadAsSent isola semântica de atualização pós-envio.
+*/
